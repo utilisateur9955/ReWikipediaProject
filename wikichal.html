@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Challenge</title>
+    <link rel="icon" type="image/png" href="favico.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Wikipedia Challenge</h1>
+        <h4><a href="index.html">by ReWikipediaProject</a></h4>
+    </header>
+
+    <main>
+        <mod>
+            <p>Chargement du challenge</p>
+        </mod>
+        <button id="reloadButton">Un autre !</button>
+
+        <script>
+            document.getElementById('reloadButton').addEventListener('click', () => {
+                location.reload();
+            });
+        </script>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 ReWikipediaProject. Tous droits réservés à Wikipedia et aux créateurs.</p>
+    </footer>
+
+    <script>
+        async function teleportToRandomPage() {
+            try {
+                const response = await fetch('https://fr.wikipedia.org/api/rest_v1/page/random/summary');
+                if (!response.ok) throw new Error('Failed to fetch Wikipedia data');
+                const data = await response.json();
+                const targetPageUrl = data.content_urls.desktop.page;
+                const targetTitle = data.title;
+                const targetExtract = data.extract;
+
+                // Mettre à jour le titre de la page
+                document.title = `Trouver : ${targetTitle}`;
+
+                const mainElement = document.querySelector('mod');
+                if (mainElement) {
+                    mainElement.innerHTML = `
+                        <h2>Votre objectif : ${targetTitle}</h2>
+                        <p>${targetExtract}</p>
+                        <button id="teleportButton">Ok ! Jouons !</button>
+                    `;
+                }
+
+                document.getElementById('teleportButton').addEventListener('click', async () => {
+                    try {
+                        const newResponse = await fetch('https://fr.wikipedia.org/api/rest_v1/page/random/summary');
+                        if (!newResponse.ok) throw new Error('Failed to fetch new Wikipedia data');
+                        const newData = await newResponse.json();
+                        const newTab = window.open(newData.content_urls.desktop.page, '_blank');
+                        if (newTab) {
+                            newTab.focus();
+                        }
+                    } catch (error) {
+                        console.error('Error during teleportation:', error);
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        teleportToRandomPage();
+    </script>
+</body>
+</html>
